@@ -1,0 +1,55 @@
+span {
+    cursor: pointer;
+}
+
+span:hover::after {
+    cursor: pointer;
+    content: attr(data-title);
+    position: absolute; /* Абсолютное позиционирование */
+    left: 15%;
+    top: 96%; /* Положение подсказки */
+    z-index: 1; /* Отображаем подсказку поверх других элементов */
+    background: rgba(238,238,238,0.9); /* Полупрозрачный цвет фона */
+    color: #7e7e7e;
+//font-family: Arial, sans-serif; /* Гарнитура шрифта */
+    font-size: 12px; /* Размер текста подсказки */
+    padding: 5px 10px; /* Поля */
+    border: 1px solid #c9c9c9; /* Параметры рамки */
+}
+
+hr.after_notes_in_date{
+    border-top: 4px solid #d5d5d5;
+}
+
+hr.before_notes_in_date{
+    border-top: 1px solid #d5d5d5;
+}
+.jumbotron{
+    margin-bottom: 0;
+    /*text-align:center;*/
+}
+
+.notes_wrapper{
+    margin-left: 40px;
+}
+
+.start {
+
+}
+
+.stop {
+    display: none;
+}
+
+.add_note {
+    display: none;
+    margin-top: 20px;
+}
+
+/*p {*/
+    /*display: inline;*/
+/*}*/
+
+.note {
+    margin-bottom: 20px;
+}
