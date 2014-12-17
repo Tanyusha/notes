@@ -6,8 +6,8 @@ var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) 
     return v.toString(16);
 });
 var key = 'a2b6b644-696f-405b-aaf6-947435344c18';
-
-var dict = new webspeechkit.Dictation("wss://webasr.yandex.net/asrsocket.ws", uuid, key);
+//создаем экзеземпляр класса webspeechkit.Dictation, который занимается взаимодействием с сервером
+var dictation = new webspeechkit.Dictation("wss://webasr.yandex.net/asrsocket.ws", uuid, key);
 
 
 var retrievedObject = localStorage.getItem('notes');
@@ -25,35 +25,42 @@ $(document).ready(function () {
         $('.add_note').css('display', 'block');
 
         var format = webspeechkit.FORMAT['PCM16'];
-
-        $('#content_uttr').html('');
-        $('#content_curr').html('');
-        console.log('pre init');
-        dict.start(format,
-            function () {
-                console.log('init!')
-            },
-            function (msg) {
-                console.log(msg);
-                location.reload();
-            },
-            function (text, uttr, merge) {
-                if (uttr) {
-                    $('#content_uttr').append(' ' + text);
-                    text = "";
-                }
-                $('#content_curr').html(text);
-                console.log(text);
-                if((text + uttr).toLowerCase().search('окей')!= -1)
-                {
-                    stop();
-                }
-            },
-            function (info) {
+        var on_init_f = function () {
+            console.log('init!')
+        };
+        var on_error_f= function (msg) { //вызовется в случае ошибок в коде библиотеки или ошибок на сервере
+            console.log(msg);
+            location.reload(); //перезагрузка страницы
+        };
+        //функция, вызываемя после получения распознанного текста. производит запись распознанного по частям текста в соответсвующее поле
+        var on_msg_f = function (text, uttr, merge) {
+            if (uttr) { //если текст уже был распознан
+                $('#content_uttr').append(' ' + text); //добавляем новый распознанный текст к уже имеющемуся
+                text = "";//очищаем переменную для нового распознанного текста
+            }
+            $('#content_curr').html(text);//записываем новый распознанный текст
+            console.log(text);
+            if((text + uttr).toLowerCase().search('окей')!= -1)//поиск команды в распознанном тексте
+            {
+                stop(); //если команда была найдена, вызываем функцию окончания распознавания
+            }
+        };
+        //функция предоставляет инорфмационные данные о текущем сеансе (количество отправленных байт, количество посланных пакетов, количество распознаных данных)
+        var on_info_f = function (info) {
 //                $('#bytes_send').html(info.send_bytes);
 //                $('#packages_send').html(info.send_packages);
 //                $('#processed').html(info.processed);
-            }
+        };
+
+        $('#content_uttr').html('');//очистка полей для вывода распознанного текста
+        $('#content_curr').html('');//очистка полей для вывода распознанного текста
+        console.log('pre init');
+        dictation.start(
+            format,
+            on_init_f,
+            on_error_f,
+            on_msg_f,
+            on_info_f
         );
     });
 
@@ -61,7 +68,7 @@ $(document).ready(function () {
 //            $('.start').css('display', 'block');
 //            $('.stop').css('display', 'none');
 //            $('.add_note').css('display', 'none');
-//            dict.stop();
+//            dictation.stop();
 //            var $note = $(".add_note");
 //            var note_text = $note.text();
 //            var note_text1 = $.trim(note_text);
@@ -69,7 +76,7 @@ $(document).ready(function () {
 //            if (note_text1 != '')
 //            {
 //                addNote(note_text);
-//                saveNodes();
+//                saveNotes();
 //                renderNotes();
 //            };
 //        }
@@ -79,7 +86,7 @@ $(document).ready(function () {
             $('.start').css('display', 'block');
             $('.stop').css('display', 'none');
             $('.add_note').css('display', 'none');
-            dict.stop();
+            dictation.stop();
             var $note = $(".add_note");
             var note_text = $note.text().replace('Окей','');
             var note_text1 = $.trim(note_text);
@@ -87,10 +94,10 @@ $(document).ready(function () {
             if (note_text1 != '')
             {
                 addNote(note_text.replace('окей',''));
-                saveNodes();
+                saveNotes();
                 renderNotes();
             }
-    };
+    }
 
     function renderNotes() {
         $('.notes').empty();
@@ -122,7 +129,7 @@ $(document).ready(function () {
             console.log(index[0]);
             $(this).closest('p').remove();
             notes.splice(index, 1);
-            saveNodes();
+            saveNotes();
         });
     }
 
@@ -144,7 +151,7 @@ $(document).ready(function () {
 
     }
 
-    function saveNodes() {
+    function saveNotes() {
         localStorage.setItem('notes', JSON.stringify(notes));
     }
 });
