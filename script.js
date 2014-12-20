@@ -24,11 +24,15 @@ $(document).ready(function () {
 //        $('.stop').css('display', 'block');
         $('.add_note').css('display', 'block');
 
+        //задаем формат для передаваемых данных
         var format = webspeechkit.FORMAT['PCM16'];
+
+        //выполняется после успешной инициализации
         var on_init_f = function () {
             console.log('init!')
         };
-        var on_error_f= function (msg) { //вызовется в случае ошибок в коде библиотеки или ошибок на сервере
+        //вызовется в случае ошибок в коде библиотеки или ошибок на сервере
+        var on_error_f= function (msg) {
             console.log(msg);
             location.reload(); //перезагрузка страницы
         };
@@ -55,6 +59,7 @@ $(document).ready(function () {
         $('#content_uttr').html('');//очистка полей для вывода распознанного текста
         $('#content_curr').html('');//очистка полей для вывода распознанного текста
         console.log('pre init');
+        //начинаем работу с сервером Яндекса, для этого вызываем метод start экземпляра класса dictation и в качестве параметров передаем ему ранее описанные функции
         dictation.start(
             format,
             on_init_f,
@@ -82,6 +87,7 @@ $(document).ready(function () {
 //        }
 //    );
 
+    //отвечает за прерывание потока посылаемых на сервер Яндекса байт на распознавание.
     function stop() {
             $('.start').css('display', 'block');
             $('.stop').css('display', 'none');
